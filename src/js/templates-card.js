@@ -10,10 +10,8 @@ export default function galleryCarsMarkup(arr) {
         comments,
         downloads,
       }) =>
-        `<a class="photo-card" href="${largeImageURL}">
-       
-            <img src="${webformatURL}" alt="${tags}" loading="lazy" />
-      
+        `<a class="photo-card" href="${largeImageURL}">       
+            <img src="${webformatURL}" alt="${tags}" loading="lazy" />      
           <div class="info">
             <p class="info-item">
               <b>Likes</b><span>${likes}</span>

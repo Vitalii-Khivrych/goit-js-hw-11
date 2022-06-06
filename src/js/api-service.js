@@ -3,34 +3,35 @@ import axios from 'axios';
 const BASE_URL = 'https://pixabay.com/api/';
 const KEY = '27865517-33e13e683f49d77078a3fb000';
 
-function fetchPictures(teg) {
-  const options = {
-    params: {
-      key: KEY,
-      q: teg,
-      image_type: 'photo',
-      orientation: 'horizontal',
-      safesearch: false,
-      page: 1,
-      per_page: 40,
-    },
-  };
+const options = {
+  params: {
+    key: KEY,
+    q: null,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    page: 1,
+    per_page: 40,
+  },
+};
 
+const imagesPerPage = options.params.per_page;
+
+function fetchPictures() {
   return axios.get(BASE_URL, options).then(res => res.data);
 }
 
-// ${BASE_URL}/?key=${KEY}&q=yellow+flowers&image_type=photo
+function newFetch(teg) {
+  options.params.q = teg;
+  options.params.page = 1;
 
-// const QUERY_OPTIONS = 'name,capital,population,flags,languages';
-// function fetchCountries(name) {
-//   return fetch(
-//     `https://restcountries.com/v3.1/name/${name}?fields=${QUERY_OPTIONS}`
-//   ).then(response => {
-//     if (!response.ok) {
-//       throw new Error(response.status);
-//     }
-//     return response.json();
-//   });
-// }
+  return fetchPictures();
+}
 
-export { fetchPictures };
+function fetchLoadMoreBtnClick() {
+  options.params.page += 1;
+
+  return fetchPictures();
+}
+
+export { newFetch, fetchLoadMoreBtnClick, imagesPerPage };

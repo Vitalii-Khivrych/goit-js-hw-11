@@ -31,7 +31,7 @@ form {
   border-radius: 5px;
   outline: none;
   background: #f9f0da;
-  color: #9e9c9c;
+  color: hsl(0, 3%, 53%);
 }
 
 .search-form button {
@@ -44,6 +44,29 @@ form {
   background: #7ba7ab;
   border-radius: 0 5px 5px 0;
   cursor: pointer;
+}
+
+.btn-container {
+  text-align: center;
+  padding-bottom: 15px;
+}
+
+.load-more {
+  font-size: 16;
+  width: 120px;
+  height: 40px;
+  /* margin: 0 auto; */
+
+  border: none;
+  background: #7ba7ab;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
+}
+
+.load-more:hover,
+.search-form button:hover {
+  background-color: #1d7d74;
 }
 
 .gallery {
@@ -98,4 +121,10 @@ form {
 .info-item > span {
   font-size: 12px;
   /* margin-top: 3px; */
+}
+
+.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 }

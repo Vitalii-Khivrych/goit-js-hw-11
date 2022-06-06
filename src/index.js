@@ -1,19 +1,31 @@
 import './css/styles.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import { fetchPictures } from './js/api-service';
-import galleryCarsMarkup from './js/templates-card';
 
-// const DEBOUNCE_DELAY = 300;
+import {
+  newFetch,
+  fetchLoadMoreBtnClick,
+  imagesPerPage,
+} from './js/api-service';
+import galleryCarsMarkup from './js/templates-card';
+import {
+  getArrayEmptyMessage,
+  getFoundImegesMessage,
+  getEndGellaryMessage,
+} from './js/message';
 
 const refs = {
   form: document.querySelector('#search-form'),
   gallery: document.querySelector('.gallery'),
-  // countryInfo: document.querySelector('.country-info'),
+  loadMoreBtn: document.querySelector('.load-more'),
 };
 
+let page = 1;
+
 refs.form.addEventListener('submit', onSearchPictures);
+refs.loadMoreBtn.addEventListener('click', onLoadMorePictures);
+
+const gallery = new SimpleLightbox('.gallery a');
 
 function onSearchPictures(e) {
   e.preventDefault();
@@ -23,38 +35,68 @@ function onSearchPictures(e) {
     return;
   }
 
-  fetchPictures(searchTeg).then(renderGalleryCards).catch(console.log);
+  newFetch(searchTeg)
+    .then(hits => {
+      renderGalleryCards(hits);
+
+      if (hits.totalHits < 1) {
+        getArrayEmptyMessage();
+        refs.loadMoreBtn.classList.add('is-hidden');
+        return;
+      }
+
+      if (
+        refs.loadMoreBtn.classList.contains('is-hidden') &&
+        page <= hits.totalHits / imagesPerPage
+      ) {
+        refs.loadMoreBtn.classList.toggle('is-hidden');
+      }
+
+      getFoundImegesMessage(hits);
+    })
+    .catch(console.log);
 
   e.currentTarget.reset();
 }
 
+function onLoadMorePictures() {
+  refs.loadMoreBtn.classList.toggle('is-hidden');
+
+  fetchLoadMoreBtnClick().then(hits => {
+    refs.loadMoreBtn.classList.toggle('is-hidden');
+    addGalleryCards(hits);
+    smoothScroll();
+
+    page += 1;
+
+    if (page >= hits.totalHits / imagesPerPage) {
+      refs.loadMoreBtn.classList.toggle('is-hidden');
+      getEndGellaryMessage();
+    }
+  });
+}
+
 function renderGalleryCards(arrayImages) {
-  if (arrayImages.totalHits < 1) {
-    onArrayEmpty();
-    return;
-  }
-
   refs.gallery.innerHTML = galleryCarsMarkup(arrayImages.hits);
-  new SimpleLightbox('.gallery a');
+  gallery.refresh();
 }
 
-function cleareMarkup() {
-  if (refs.countriesList.children.length > 0) {
-    refs.countriesList.innerHTML = '';
-  }
-
-  if (refs.countryInfo.children.length > 0) {
-    refs.countryInfo.innerHTML = '';
-  }
-}
-
-function onArrayEmpty() {
-  Notify.failure(
-    'Sorry, there are no images matching your search query. Please try again.'
+function addGalleryCards(arrayImages) {
+  refs.gallery.insertAdjacentHTML(
+    'beforeend',
+    galleryCarsMarkup(arrayImages.hits)
   );
+
+  gallery.refresh();
 }
 
-function onFetchError(error) {
-  // cleareMarkup();
-  Notify.failure('Oops, there is no country with that name');
+function smoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
