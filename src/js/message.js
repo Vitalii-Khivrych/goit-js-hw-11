@@ -1,13 +1,11 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 function getArrayEmptyMessage() {
-  Notify.failure(
-    'Sorry, there are no images matching your search query. Please try again.'
-  );
+  Notify.failure('Sorry, there are no images matching your search query. Please try again.');
 }
 
 function getFoundImegesMessage({ totalHits }) {
-  Notify.info(`Hooray! We found ${totalHits} images.`);
+  Notify.success(`Hooray! We found ${totalHits} images.`);
 }
 
 function getEndGellaryMessage() {
