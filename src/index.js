@@ -2,17 +2,9 @@ import './css/styles.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-import {
-  newFetch,
-  fetchLoadMoreBtnClick,
-  imagesPerPage,
-} from './js/api-service';
+import { newFetch, fetchLoadMoreBtnClick, imagesPerPage } from './js/api-service';
 import galleryCarsMarkup from './js/templates-card';
-import {
-  getArrayEmptyMessage,
-  getFoundImegesMessage,
-  getEndGellaryMessage,
-} from './js/message';
+import { getArrayEmptyMessage, getFoundImegesMessage, getEndGellaryMessage } from './js/message';
 
 const refs = {
   form: document.querySelector('#search-form'),
@@ -27,53 +19,57 @@ refs.loadMoreBtn.addEventListener('click', onLoadMorePictures);
 
 const gallery = new SimpleLightbox('.gallery a');
 
-function onSearchPictures(e) {
-  e.preventDefault();
-  const searchTeg = e.currentTarget.elements.searchQuery.value.trim();
+async function onSearchPictures(e) {
+  try {
+    e.preventDefault();
+    const searchTeg = e.currentTarget.elements.searchQuery.value.trim();
 
-  if (!searchTeg) {
-    return;
+    if (!searchTeg) {
+      return;
+    }
+
+    const imegesGallery = await newFetch(searchTeg);
+    const foundPictures = imegesGallery.totalHits;
+
+    renderGalleryCards(imegesGallery);
+
+    if (foundPictures < 1) {
+      getArrayEmptyMessage();
+      refs.loadMoreBtn.classList.add('is-hidden');
+      return;
+    }
+
+    if (refs.loadMoreBtn.classList.contains('is-hidden') && page <= foundPictures / imagesPerPage) {
+      refs.loadMoreBtn.classList.toggle('is-hidden');
+    }
+
+    getFoundImegesMessage(imegesGallery);
+    e.target.reset();
+  } catch {
+    err => console.log(err);
   }
-
-  newFetch(searchTeg)
-    .then(hits => {
-      renderGalleryCards(hits);
-
-      if (hits.totalHits < 1) {
-        getArrayEmptyMessage();
-        refs.loadMoreBtn.classList.add('is-hidden');
-        return;
-      }
-
-      if (
-        refs.loadMoreBtn.classList.contains('is-hidden') &&
-        page <= hits.totalHits / imagesPerPage
-      ) {
-        refs.loadMoreBtn.classList.toggle('is-hidden');
-      }
-
-      getFoundImegesMessage(hits);
-    })
-    .catch(console.log);
-
-  e.currentTarget.reset();
 }
 
-function onLoadMorePictures() {
-  refs.loadMoreBtn.classList.toggle('is-hidden');
-
-  fetchLoadMoreBtnClick().then(hits => {
+async function onLoadMorePictures() {
+  try {
     refs.loadMoreBtn.classList.toggle('is-hidden');
-    addGalleryCards(hits);
+
+    const morePictures = await fetchLoadMoreBtnClick();
+    const foundPictures = morePictures.totalHits;
+
+    refs.loadMoreBtn.classList.toggle('is-hidden');
+    addGalleryCards(morePictures);
     smoothScroll();
 
     page += 1;
 
-    if (page >= hits.totalHits / imagesPerPage) {
+    if (page >= foundPictures / imagesPerPage) {
       refs.loadMoreBtn.classList.toggle('is-hidden');
       getEndGellaryMessage();
     }
-  });
+  } catch {
+    err => console.log(err);
+  }
 }
 
 function renderGalleryCards(arrayImages) {
@@ -82,18 +78,12 @@ function renderGalleryCards(arrayImages) {
 }
 
 function addGalleryCards(arrayImages) {
-  refs.gallery.insertAdjacentHTML(
-    'beforeend',
-    galleryCarsMarkup(arrayImages.hits)
-  );
-
+  refs.gallery.insertAdjacentHTML('beforeend', galleryCarsMarkup(arrayImages.hits));
   gallery.refresh();
 }
 
 function smoothScroll() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
+  const { height: cardHeight } = document.querySelector('.gallery').firstElementChild.getBoundingClientRect();
 
   window.scrollBy({
     top: cardHeight * 2,

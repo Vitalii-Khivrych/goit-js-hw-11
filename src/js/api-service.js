@@ -17,21 +17,23 @@ const options = {
 
 const imagesPerPage = options.params.per_page;
 
-function fetchPictures() {
-  return axios.get(BASE_URL, options).then(res => res.data);
+async function fetchPictures() {
+  const respose = await axios.get(BASE_URL, options);
+
+  return await respose.data;
 }
 
-function newFetch(teg) {
+async function newFetch(teg) {
   options.params.q = teg;
   options.params.page = 1;
 
-  return fetchPictures();
+  return await fetchPictures();
 }
 
-function fetchLoadMoreBtnClick() {
+async function fetchLoadMoreBtnClick() {
   options.params.page += 1;
 
-  return fetchPictures();
+  return await fetchPictures();
 }
 
 export { newFetch, fetchLoadMoreBtnClick, imagesPerPage };
