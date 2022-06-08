@@ -20,20 +20,20 @@ const imagesPerPage = options.params.per_page;
 async function fetchPictures() {
   const respose = await axios.get(BASE_URL, options);
 
-  return await respose.data;
+  return respose.data;
 }
 
-async function newFetch(teg) {
+function newFetch(teg) {
   options.params.q = teg;
   options.params.page = 1;
 
-  return await fetchPictures();
+  return fetchPictures();
 }
 
-async function fetchLoadMoreBtnClick() {
+function fetchLoadMoreBtnClick() {
   options.params.page += 1;
 
-  return await fetchPictures();
+  return fetchPictures();
 }
 
 export { newFetch, fetchLoadMoreBtnClick, imagesPerPage };

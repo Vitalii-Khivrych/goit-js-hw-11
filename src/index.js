@@ -4,7 +4,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 import { newFetch, fetchLoadMoreBtnClick, imagesPerPage } from './js/api-service';
 import galleryCarsMarkup from './js/templates-card';
-import { getArrayEmptyMessage, getFoundImegesMessage, getEndGellaryMessage } from './js/message';
+import { getArrayEmptyMessage, getFoundImegesMessage, getEndGellaryMessage, getEmptySearchMessage } from './js/message';
 
 const refs = {
   form: document.querySelector('#search-form'),
@@ -25,10 +25,12 @@ async function onSearchPictures(e) {
     const searchTeg = e.currentTarget.elements.searchQuery.value.trim();
 
     if (!searchTeg) {
+      getEmptySearchMessage();
       return;
     }
 
     const imegesGallery = await newFetch(searchTeg);
+
     const foundPictures = imegesGallery.totalHits;
 
     renderGalleryCards(imegesGallery);
