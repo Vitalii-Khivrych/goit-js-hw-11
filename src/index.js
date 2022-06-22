@@ -22,6 +22,7 @@ const gallery = new SimpleLightbox('.gallery a');
 async function onSearchPictures(e) {
   try {
     e.preventDefault();
+    page = 1;
     const searchTeg = e.currentTarget.elements.searchQuery.value.trim();
 
     if (!searchTeg) {
